@@ -39,7 +39,7 @@ def fetch_data():
         "load_avg": data.get("load", {}).get("min1", 0.0),
         "net_down_mb": round(net.get("bytes_recv_gauge", 0) / (1024**2), 2),
         "net_up_mb": round(net.get("bytes_sent_gauge", 0) / (1024**2), 2),
-        "container_count": len(data.get("containers", [])),
+        # "container_count": len(data.get("containers", [])),
         "top_containers": top_containers
     }
 
@@ -70,8 +70,8 @@ def render_display(stats):
 
     draw.text((PADDING, y), f"Load: {stats['load_avg']:.2f}   Uptime: {stats['uptime']}", font=SMALL, fill=0)
     y += 20
-    draw.text((PADDING, y), f"Docker: {stats['container_count']} containers", font=SMALL, fill=0)
-    y += 18
+    # draw.text((PADDING, y), f"Docker: {stats['container_count']} containers", font=SMALL, fill=0)
+    # y += 18
     draw.text((PADDING, y), f"↑ {stats['net_up_mb']} MB   ↓ {stats['net_down_mb']} MB", font=SMALL, fill=0)
     y += 30
 
@@ -82,7 +82,7 @@ def render_display(stats):
         ram = container["ram_mb"]
         bar_length = int(min(ram / 4000, 1.0) * BAR_WIDTH)
         draw.text((PADDING, y), f"{name}", font=SMALL, fill=0)
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_length, y + BAR_HEIGHT], fill=0)
+        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_length, y + BAR_HEIGHT], fill=BAR_COLOR)
         draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram}MB", font=SMALL, fill=0)
         y += 20
 
