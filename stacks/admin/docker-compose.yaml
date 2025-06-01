@@ -1,0 +1,154 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    user: 1000:1000
+    ports:
+      - "1234:1234"
+    volumes:
+      - /storage:/srv
+      - /home/base/homebase/containers/admin/filebrowser/filebrowser.db:/database.db
+      - /home/base/homebase/containers/admin/filebrowser/filebrowser.json:/.filebrowser.json
+    restart: always
+  
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - UMASK_SET=022
+    volumes:
+      - /home/base/homebase/containers/admin/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9292:9090
+    restart: unless-stopped
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - UMASK_SET=022
+    volumes:
+      - /:/host:ro,rslave
+    ports:
+      - 9100:9100
+    restart: unless-stopped
+      
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - /home/base/homebase/containers/admin/grafana/config:/etc/grafana/provisioning/datasources
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`status.elftech.xyz`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+    networks:
+      - traefik-network      
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    ports:
+      - 3030:3030
+    environment:    
+      - PORT=3030 
+    restart: unless-stopped
+
+    volumes:
+      - /home/base/homebase/containers/admin/homepage/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock # (optional) For docker integrations
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.home.rule=Host(`home.elftech.xyz`)"
+      - "traefik.http.routers.home.entrypoints=websecure"
+      - "traefik.http.routers.home.tls.certresolver=myresolver"
+      - "traefik.http.services.home.loadbalancer.server.port=3030"
+    networks:
+      - traefik-network  
+
+  rotki:
+    image: rotki/rotki:latest
+    environment:
+      - TZ=America/New_York
+    ports:
+      - 3141:80
+    volumes:
+      - /home/base/homebase/containers/admin/rotki/data:/data
+      - /home/base/homebase/containers/admin/rotki/logs:/logs
+    restart: always
+  
+  glances:
+    image: nicolargo/glances:latest-full
+    restart: always
+    pid: host
+    ports:
+      - 61208:61208
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Uncomment the below line if you want glances to display host OS detail instead of container's
+      - /etc/os-release:/etc/os-release:ro
+    environment:
+      - "GLANCES_OPT=-w"
+    labels:
+      - "traefik.port=61208"
+      - "traefik.frontend.rule=Host:glances.docker.localhost"
+      - "traefik.enable=true"
+      - "traefik.http.routers.controller.rule=Host(`controller.elftech.xyz`)"
+      - "traefik.http.routers.controller.entrypoints=websecure"
+      - "traefik.http.routers.controller.tls.certresolver=myresolver"
+      - "traefik.http.services.controller.loadbalancer.server.port=61208"
+
+  organizr:
+    image: linuxserver/organizr
+    container_name: organizr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/admin/organizr/config:/config
+    ports:
+      - 9983:9983
+    restart: unless-stopped
+
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.2
+    # Enables the web UI and tells Traefik to listen to docker
+    command: 
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--api.insecure=true"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=datameplease@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"      
+    ports:
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/base/homebase/letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+    restart: unless-stopped
+
+networks:
+  traefik-network:
+    external: true

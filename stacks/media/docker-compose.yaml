@@ -1,0 +1,158 @@
+services:
+  plex:
+    container_name: plex
+    image: ghcr.io/hotio/plex
+    restart: unless-stopped
+    ports:
+      - "32400:32400"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+      - PLEX_CLAIM_TOKEN
+      - PLEX_ADVERTISE_URL
+      - PLEX_NO_AUTH_NETWORKS
+      - PLEX_BETA_INSTALL=false
+    volumes:
+      - /home/base/homebase/containers/media/plex/config:/config
+      - /home/base/homebase/containers/media/plex/transcode:/transcode
+      - /home/base/homebase/containers/media/plex/data:/data
+      - /media/first:/first
+      - /media/second:/second
+      - /media/third:/third
+      - /media/fourth:/fourth
+      - /storage:/storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.rule=Host(`plex.elftech.xyz`)"
+      - "traefik.http.routers.plex.entrypoints=websecure"
+      - "traefik.http.routers.plex.tls.certresolver=myresolver"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+    networks:
+      - traefik-network      
+
+  sabnzbd:
+    container_name: sabnzbd
+    image: ghcr.io/hotio/sabnzbd
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      # - "8081:8081"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/media/sabnzbd/config:/config
+      - /media/first:/first
+      - /media/second:/second
+      - /media/third:/third
+      - /media/fourth:/fourth
+      - /storage:/storage
+    networks:
+      - traefik-network
+
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr
+    restart: unless-stopped
+    ports:
+      - "7878:7878"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/media/radarr/config:/config
+      - /media/first:/first
+      - /media/second:/second
+      - /media/third:/third
+      - /media/fourth:/fourth
+      - /storage:/storage
+    networks:
+      - traefik-network
+
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/media/sonarr/config:/config
+      - /media/first:/first
+      - /media/second:/second
+      - /media/third:/third
+      - /media/fourth:/fourth
+      - /storage:/storage
+    networks:
+      - traefik-network
+
+  readarr:
+    container_name: readarr
+    image: ghcr.io/hotio/readarr
+    ports:
+      - "8787:8787"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/media/readarr/config:/config
+      - /storage:/storage
+    networks:
+      - traefik-network
+
+
+  overseerr:
+    container_name: overseerr
+    image: ghcr.io/hotio/overseerr
+    ports:
+      - 5055:5055
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+    volumes:
+      - /home/base/homebase/containers/media/overseerr/config:/config
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.overseerr.rule=Host(`request.elftech.xyz`)"
+      - "traefik.http.routers.overseerr.entrypoints=websecure"
+      - "traefik.http.routers.overseerr.tls.certresolver=myresolver"
+      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
+
+    networks:
+      - traefik-network
+
+  bazarr:
+    container_name: bazarr
+    image: ghcr.io/hotio/bazarr
+    ports:
+      - "6767:6767"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=America/New_York
+      - WEBUI_PORTS=6767/tcp,6767/udp
+    volumes:
+      - /home/base/homebase/containers/media/bazarr/config:/config
+      - /storage:/data
+    networks:
+      - traefik-network
+
+networks:
+  traefik-network:
+    external: true
