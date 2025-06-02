@@ -58,12 +58,13 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
     draw.arc(bbox, start=0, end=359, fill=0)
-    draw.pieslice(bbox, start=-90, end=359 , fill=1)
+    # draw.pieslice(bbox, start=-90, end=-90 , fill=1)
     draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=2)
 
     offset = radius * 0.7
+
     smallerbbox = [x - offset, y - offset, x + offset, y + offset]
-    draw.pieslice(smallerbbox, start=-90, end=-90, fill=1)
+    draw.pieslice(smallerbbox, start=-90, end=359, fill=1)
 
 
     val_text = f"{int(value)}{suffix}"
