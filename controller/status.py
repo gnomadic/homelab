@@ -1,16 +1,19 @@
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from inky.auto import auto
-
-GLANCES_URL = "http://192.168.0.42:61208/api/4/all"
+from pathlib import Path
 
 # === Configuration ===
+GLANCES_URL = "http://192.168.0.42:61208/api/4/all"
 WIDTH, HEIGHT = 400, 300
 PADDING = 10
 BAR_WIDTH = 220
 BAR_HEIGHT = 14
-BAR_COLOR = 2 # deco color
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+BAR_COLOR = 0  # black
+
+# === Font Setup ===
+FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
+
 FONT = ImageFont.truetype(FONT_PATH, 16)
 SMALL = ImageFont.truetype(FONT_PATH, 14)
 
@@ -21,7 +24,7 @@ def fetch_data():
         data = res.json()
     except Exception as e:
         return {"error": str(e)}
-    
+
     net = next((n for n in data.get("network", []) if n.get("interface_name") == "eth0"), {})
 
     containers = sorted(data.get("containers", []), key=lambda c: c.get("memory_usage", 0), reverse=True)
@@ -39,52 +42,56 @@ def fetch_data():
         "load_avg": data.get("load", {}).get("min1", 0.0),
         "net_down_mb": round(net.get("bytes_recv_gauge", 0) / (1024**2), 2),
         "net_up_mb": round(net.get("bytes_sent_gauge", 0) / (1024**2), 2),
-        # "container_count": len(data.get("containers", [])),
+        "container_count": len(data.get("containers", [])),
         "top_containers": top_containers
     }
 
-def draw_bar(draw, x, y, label, value, max_value=100, suffix="%", width=BAR_WIDTH):
-    draw.text((x, y), f"{label}: ", font=FONT, fill=0)
-    bar_x = x + 70
-    fill_width = int(min(value / max_value, 1.0) * width)
-    draw.rectangle([bar_x, y + 4, bar_x + width, y + BAR_HEIGHT], outline=0, fill=None)
-    draw.rectangle([bar_x, y + 4, bar_x + fill_width, y + BAR_HEIGHT], fill=BAR_COLOR)
-    draw.text((bar_x + width + 5, y), f"{value:.1f}{suffix}", font=FONT, fill=0)
+def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
+    pct = min(max(value / max_value, 0.0), 1.0)
+    bbox = [x - radius, y - radius, x + radius, y + radius]
+    draw.arc(bbox, start=0, end=359, fill=0)
+    draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=0)
+
+    val_text = f"{int(value)}{suffix}"
+    w, h = draw.textsize(val_text, font=SMALL)
+    draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=1)
+
+    lw, lh = draw.textsize(label, font=SMALL)
+    draw.text((x - lw // 2, y + radius + 5), label, font=SMALL, fill=0)
 
 def render_display(stats):
     inky = auto()
     img = Image.new("P", (WIDTH, HEIGHT), 1)
     draw = ImageDraw.Draw(img)
 
-    y = PADDING
+    # Uptime in top right
+    uptime = stats["uptime"]
+    w, h = draw.textsize(uptime, font=SMALL)
+    draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
-    draw.text((PADDING, y), "SYSTEM STATUS", font=FONT, fill=0)
-    y += 24
+    # Circle positions
+    circle_y = 90
+    draw_circle(draw, 90, circle_y, "CPU", stats["cpu_percent"])
+    draw_circle(draw, 200, circle_y, "RAM", stats["mem_percent"])
+    draw_circle(draw, 310, circle_y, "DISK", stats["disk_percent"])
 
-    draw_bar(draw, PADDING, y, "CPU", stats["cpu_percent"])
-    y += 22
-    draw_bar(draw, PADDING, y, "RAM", stats["mem_percent"])
-    y += 22
-    draw_bar(draw, PADDING, y, "DISK", stats["disk_percent"])
-    y += 28
+    # Divider line
+    draw.line((PADDING, 160, WIDTH - PADDING, 160), fill=0)
 
-    draw.text((PADDING, y), f"Load: {stats['load_avg']:.2f}   Uptime: {stats['uptime']}", font=SMALL, fill=0)
+    # Top containers
+    y = 170
+    draw.text((PADDING, y), "TOP CONTAINERS (RAM MB)", font=SMALL, fill=0)
     y += 20
-    # draw.text((PADDING, y), f"Docker: {stats['container_count']} containers", font=SMALL, fill=0)
-    # y += 18
-    draw.text((PADDING, y), f"↑ {stats['net_up_mb']} MB   ↓ {stats['net_down_mb']} MB", font=SMALL, fill=0)
-    y += 30
 
-    draw.text((PADDING, y), "TOP CONTAINERS (RAM):", font=FONT, fill=0)
-    y += 22
     for container in stats["top_containers"]:
-        name = container["name"][:8].ljust(8)
+        name = container["name"][:10].ljust(10)
         ram = container["ram_mb"]
-        bar_length = int(min(ram / 4000, 1.0) * BAR_WIDTH)
-        draw.text((PADDING, y), f"{name}", font=SMALL, fill=0)
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_length, y + BAR_HEIGHT], fill=BAR_COLOR)
-        draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram}MB", font=SMALL, fill=0)
-        y += 20
+        bar_len = int(min(ram / 4000, 1.0) * BAR_WIDTH)
+
+        draw.text((PADDING, y), name, font=SMALL, fill=0)
+        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_len, y + BAR_HEIGHT], fill=0)
+        draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram} MB", font=SMALL, fill=0)
+        y += 22
 
     inky.set_image(img)
     inky.show()
