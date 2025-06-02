@@ -54,6 +54,8 @@ def text_size(draw, text, font):
     height = bbox[3] - bbox[1]
     return width, height
 
+
+
 def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
@@ -74,13 +76,20 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     w, h = text_size(draw, label, FONT)
     draw.text((x - w // 2, y + radius + 5), label, font=TITLE, fill=0)
 
+
+# Arrow parameters
+arrow_length = 6  # How far the arrow "body" extends from the tip
+arrow_height = 8  # The vertical span of the arrow's wings
+arrow_padding = 4       # Distance from the image edge
+
+
 def draw_reboot_label(draw, x, y, font):
     label = "Reboot"
     # spacing = 6  # space between text and arrow
 
     # Measure text
     w, h = text_size(draw, label, font)
-    draw.text((x - w - 12, y - h), label, font=font, fill=0)
+    draw.text((x - w - 12, y - h - arrow_padding), label, font=font, fill=0)
 
     # Draw arrow (simple right-pointing chevron)
     arrow_tip = (x, y - h // 2)
@@ -95,6 +104,7 @@ def draw_update_label(draw, x, y, font):
 
     # Measure text
     w, h = text_size(draw, label, font)
+    draw.text((x + 12, y - h - arrow_padding), label, font=font, fill=0)
 
     # Draw arrow (left-pointing chevron)
     arrow_tip = (x, y - h // 2)
@@ -102,9 +112,6 @@ def draw_update_label(draw, x, y, font):
     arrow_left = (x + 8, y)
 
     draw.line([arrow_right, arrow_tip, arrow_left], fill=0, width=2)
-
-    # Draw text after arrow
-    draw.text((x + 12, y - h), label, font=font, fill=0)
 
 def render_display(stats):
     inky = auto()
