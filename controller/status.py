@@ -9,7 +9,7 @@ WIDTH, HEIGHT = 400, 300
 PADDING = 10
 BAR_WIDTH = 220
 BAR_HEIGHT = 14
-BAR_COLOR = 0  # black
+BAR_COLOR = 2  # black
 
 # === Font Setup ===
 FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
@@ -64,7 +64,7 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
 
     val_text = f"{int(value)}{suffix}"
     w, h = text_size(draw, val_text, FONT)
-    draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=1)
+    draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=0)
 
     w, h = text_size(draw, label, FONT)
     draw.text((x - w // 2, y + radius + 5), label, font=TITLE, fill=0)
