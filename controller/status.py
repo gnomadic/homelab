@@ -61,10 +61,10 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=0)
 
     val_text = f"{int(value)}{suffix}"
-    w, h = text_size(draw, text, FONT)
+    w, h = text_size(draw, val_text, FONT)
     draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=1)
 
-    w, h = text_size(draw, text, FONT)
+    w, h = text_size(draw, label, FONT)
     draw.text((x - lw // 2, y + radius + 5), label, font=TITLE, fill=0)
 
 def render_display(stats):
@@ -74,7 +74,7 @@ def render_display(stats):
 
     # Uptime in top right
     uptime = stats["uptime"]
-    w, h = text_size(draw, text, FONT)
+    w, h = text_size(draw, uptime, FONT)
     draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
     # Circle positions
