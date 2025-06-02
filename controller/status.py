@@ -92,7 +92,7 @@ def draw_reboot_label(draw, x, y, font):
     draw.text((x - w - 12, y - h - arrow_padding), label, font=font, fill=0)
 
     # Draw arrow (simple right-pointing chevron)
-    arrow_tip = (x, y - h // 2)
+    arrow_tip = (x, y - (h / 2))
     arrow_left = (x - 8, y - h)
     arrow_right = (x - 8, y)
 
@@ -100,14 +100,14 @@ def draw_reboot_label(draw, x, y, font):
 
 def draw_update_label(draw, x, y, font):
     label = "Update"
-    spacing = 6  # space between arrow and text
+    # spacing = 6  # space between arrow and text
 
     # Measure text
     w, h = text_size(draw, label, font)
     draw.text((x + 12, y - h - arrow_padding), label, font=font, fill=0)
 
     # Draw arrow (left-pointing chevron)
-    arrow_tip = (x, y - h // 2)
+    arrow_tip = (x, y - (h / 2))
     arrow_right = (x + 8, y - h)
     arrow_left = (x + 8, y)
 
