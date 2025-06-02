@@ -74,6 +74,38 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     w, h = text_size(draw, label, FONT)
     draw.text((x - w // 2, y + radius + 5), label, font=TITLE, fill=0)
 
+def draw_reboot_label(draw, x, y, font):
+    label = "Reboot"
+    # spacing = 6  # space between text and arrow
+
+    # Measure text
+    w, h = text_size(draw, label, font)
+    draw.text((x - w - 12, y - h), label, font=font, fill=0)
+
+    # Draw arrow (simple right-pointing chevron)
+    arrow_tip = (x, y - h // 2)
+    arrow_left = (x - 8, y - h)
+    arrow_right = (x - 8, y)
+
+    draw.line([arrow_left, arrow_tip, arrow_right], fill=0, width=2)
+
+def draw_update_label(draw, x, y, font):
+    label = "Update"
+    spacing = 6  # space between arrow and text
+
+    # Measure text
+    w, h = text_size(draw, label, font)
+
+    # Draw arrow (left-pointing chevron)
+    arrow_tip = (x, y - h // 2)
+    arrow_right = (x + 8, y - h)
+    arrow_left = (x + 8, y)
+
+    draw.line([arrow_right, arrow_tip, arrow_left], fill=0, width=2)
+
+    # Draw text after arrow
+    draw.text((x + 12, y - h), label, font=font, fill=0)
+
 def render_display(stats):
     inky = auto()
     img = Image.new("P", (WIDTH, HEIGHT), 1)
@@ -84,11 +116,23 @@ def render_display(stats):
     w, h = text_size(draw, title, FONT)
     draw.text((PADDING, PADDING), title, font=SMALL, fill=0)
 
-
     # Uptime in top right
     uptime = stats["uptime"]
     w, h = text_size(draw, uptime, FONT)
     draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
+
+    # Reboot in bottom right
+    # uptime = stats["Reboot"]
+    # w, h = text_size(draw, uptime, FONT)
+    # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
+
+    draw_reboot_label(draw, WIDTH - PADDING, HEIGHT - PADDING, SMALL)
+
+    # # Refresh in bottom left
+    # uptime = stats["Refresh"]
+    # w, h = text_size(draw, uptime, FONT)
+    # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
+    draw_update_label(draw, PADDING, HEIGHT - PADDING, SMALL)
 
     # Circle positions
     circle_y = 90
