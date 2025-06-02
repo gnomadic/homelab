@@ -9,7 +9,7 @@ WIDTH, HEIGHT = 400, 300
 PADDING = 10
 BAR_WIDTH = 220
 BAR_HEIGHT = 14
-BAR_COLOR = 2  # black
+BAR_COLOR = 0  # black
 
 # === Font Setup ===
 FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
@@ -58,9 +58,13 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
     draw.arc(bbox, start=0, end=359, fill=0)
-    # draw.circle((x, y), radius, fill=1)
     draw.pieslice(bbox, start=-90, end=-90 , fill=1)
     draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=2)
+
+    offset = radius * 0.7
+    smallerbbox = [x - offset, y - offset, x + offset, y + offset]
+    draw.pieslice(smallerbbox, start=-90, end=-90 + int(360 * pct), fill=1)
+
 
     val_text = f"{int(value)}{suffix}"
     w, h = text_size(draw, val_text, FONT)
@@ -105,7 +109,9 @@ def render_display(stats):
         bar_len = int(min(ram / 4000, 1.0) * BAR_WIDTH)
 
         draw.text((PADDING, y), name, font=SMALL, fill=0)
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_len, y + BAR_HEIGHT], fill=0)
+        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + BAR_WIDTH - 4, y + BAR_HEIGHT - 4 ], fill=0)
+
+        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_len, y + BAR_HEIGHT], fill=2)
         draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram} MB", font=SMALL, fill=0)
         y += 22
 
