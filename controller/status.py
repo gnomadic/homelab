@@ -1,18 +1,22 @@
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from inky.auto import auto
-
-GLANCES_URL = "http://192.168.0.42:61208/api/4/all"
+from pathlib import Path
 
 # === Configuration ===
+GLANCES_URL = "http://192.168.0.42:61208/api/4/all"
 WIDTH, HEIGHT = 400, 300
 PADDING = 10
 BAR_WIDTH = 220
 BAR_HEIGHT = 14
-BAR_COLOR = 2 # deco color
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+
+# === Font Setup ===
+FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
+BOLD_FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Bold.otf"
+
 FONT = ImageFont.truetype(FONT_PATH, 16)
 SMALL = ImageFont.truetype(FONT_PATH, 14)
+TITLE = ImageFont.truetype(BOLD_FONT_PATH, 20)
 
 def fetch_data():
     try:
@@ -21,7 +25,7 @@ def fetch_data():
         data = res.json()
     except Exception as e:
         return {"error": str(e)}
-    
+
     net = next((n for n in data.get("network", []) if n.get("interface_name") == "eth0"), {})
 
     containers = sorted(data.get("containers", []), key=lambda c: c.get("memory_usage", 0), reverse=True)
@@ -39,52 +43,130 @@ def fetch_data():
         "load_avg": data.get("load", {}).get("min1", 0.0),
         "net_down_mb": round(net.get("bytes_recv_gauge", 0) / (1024**2), 2),
         "net_up_mb": round(net.get("bytes_sent_gauge", 0) / (1024**2), 2),
-        # "container_count": len(data.get("containers", [])),
+        "container_count": len(data.get("containers", [])),
         "top_containers": top_containers
     }
 
-def draw_bar(draw, x, y, label, value, max_value=100, suffix="%", width=BAR_WIDTH):
-    draw.text((x, y), f"{label}: ", font=FONT, fill=0)
-    bar_x = x + 70
-    fill_width = int(min(value / max_value, 1.0) * width)
-    draw.rectangle([bar_x, y + 4, bar_x + width, y + BAR_HEIGHT], outline=0, fill=None)
-    draw.rectangle([bar_x, y + 4, bar_x + fill_width, y + BAR_HEIGHT], fill=BAR_COLOR)
-    draw.text((bar_x + width + 5, y), f"{value:.1f}{suffix}", font=FONT, fill=0)
+def text_size(draw, text, font):
+    bbox = draw.textbbox((0, 0), text, font=font)
+    width = bbox[2] - bbox[0]
+    height = bbox[3] - bbox[1]
+    return width, height
+
+
+
+def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
+    pct = min(max(value / max_value, 0.0), 1.0)
+    bbox = [x - radius, y - radius, x + radius, y + radius]
+    draw.arc(bbox, start=0, end=359, fill=0)
+    # draw.pieslice(bbox, start=-90, end=-90 , fill=1)
+    draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=2)
+
+    offset = radius * 0.7
+
+    smallerbbox = [x - offset, y - offset, x + offset, y + offset]
+    draw.pieslice(smallerbbox, start=-90, end=359, fill=1)
+
+
+    val_text = f"{int(value)}{suffix}"
+    w, h = text_size(draw, val_text, FONT)
+    draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=0)
+
+    w, h = text_size(draw, label, FONT)
+    draw.text((x - w // 2, y + radius + 5), label, font=TITLE, fill=0)
+
+
+# Arrow parameters
+arrow_length = 6  # How far the arrow "body" extends from the tip
+arrow_height = 8  # The vertical span of the arrow's wings
+arrow_padding = 4       # Distance from the image edge
+
+
+def draw_reboot_label(draw, x, y, font):
+    label = "Reboot"
+    # spacing = 6  # space between text and arrow
+
+    # Measure text
+    w, h = text_size(draw, label, font)
+    draw.text((x - w - 12, y - h - 4), label, font=font, fill=0)
+
+    # Draw arrow (simple right-pointing chevron)
+    arrow_tip = (x, y - 5)
+    arrow_bottom = (x - 8, y - 10)
+    arrow_top = (x - 8, y)
+
+    draw.line([arrow_bottom, arrow_tip, arrow_top], fill=0, width=2)
+
+def draw_update_label(draw, x, y, font):
+    label = "Refresh"
+    # spacing = 6  # space between arrow and text
+
+    # Measure text
+    w, h = text_size(draw, label, font)
+    draw.text((x + 12, y - h - 3), label, font=font, fill=0)
+
+    # Draw arrow (left-pointing chevron)
+    arrow_tip = (x, y - 5)
+    arrow_bottom = (x + 8, y - 10)
+    arrow_top = (x + 8, y)
+
+    draw.line([arrow_bottom, arrow_tip, arrow_top], fill=0, width=2)
 
 def render_display(stats):
     inky = auto()
     img = Image.new("P", (WIDTH, HEIGHT), 1)
     draw = ImageDraw.Draw(img)
 
-    y = PADDING
+    # Title in top left
+    title = "HOMEBASE"
+    w, h = text_size(draw, title, FONT)
+    draw.text((PADDING, PADDING), title, font=SMALL, fill=0)
 
-    draw.text((PADDING, y), "SYSTEM STATUS", font=FONT, fill=0)
-    y += 24
+    # Uptime in top right
+    uptime = stats["uptime"]
+    w, h = text_size(draw, uptime, FONT)
+    draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
-    draw_bar(draw, PADDING, y, "CPU", stats["cpu_percent"])
-    y += 22
-    draw_bar(draw, PADDING, y, "RAM", stats["mem_percent"])
-    y += 22
-    draw_bar(draw, PADDING, y, "DISK", stats["disk_percent"])
+    # Reboot in bottom right
+    # uptime = stats["Reboot"]
+    # w, h = text_size(draw, uptime, FONT)
+    # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
+
+    draw_reboot_label(draw, WIDTH - PADDING, HEIGHT - PADDING, SMALL)
+
+    # # Refresh in bottom left
+    # uptime = stats["Refresh"]
+    # w, h = text_size(draw, uptime, FONT)
+    # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
+    draw_update_label(draw, PADDING, HEIGHT - PADDING, SMALL)
+
+    # Circle positions
+    circle_y = 90
+    draw_circle(draw, 90, circle_y, "CPU", stats["cpu_percent"])
+    draw_circle(draw, 200, circle_y, "RAM", stats["mem_percent"])
+    draw_circle(draw, 310, circle_y, "DISK", stats["disk_percent"])
+
+    # Divider line
+    draw.line((PADDING, 160, WIDTH - PADDING, 160), fill=0)
+
+    # Top containers
+    y = 170
+    draw.text((PADDING, y), "TOP CONTAINERS (RAM MB)", font=SMALL, fill=0)
     y += 28
 
-    draw.text((PADDING, y), f"Load: {stats['load_avg']:.2f}   Uptime: {stats['uptime']}", font=SMALL, fill=0)
-    y += 20
-    # draw.text((PADDING, y), f"Docker: {stats['container_count']} containers", font=SMALL, fill=0)
-    # y += 18
-    draw.text((PADDING, y), f"↑ {stats['net_up_mb']} MB   ↓ {stats['net_down_mb']} MB", font=SMALL, fill=0)
-    y += 30
-
-    draw.text((PADDING, y), "TOP CONTAINERS (RAM):", font=FONT, fill=0)
-    y += 22
     for container in stats["top_containers"]:
-        name = container["name"][:8].ljust(8)
+        name = container["name"][:10].ljust(10)
         ram = container["ram_mb"]
-        bar_length = int(min(ram / 4000, 1.0) * BAR_WIDTH)
-        draw.text((PADDING, y), f"{name}", font=SMALL, fill=0)
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_length, y + BAR_HEIGHT], fill=BAR_COLOR)
-        draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram}MB", font=SMALL, fill=0)
-        y += 20
+        bar_len = int(min(ram / 4000, 1.0) * BAR_WIDTH)
+
+        draw.text((PADDING, y), name, font=SMALL, fill=0)
+        
+        draw.rectangle([PADDING + 80, y, PADDING + 80 + BAR_WIDTH, y + BAR_HEIGHT ], fill=0)
+        draw.rectangle([PADDING + 80 + 1, y + 1, PADDING + 80 + BAR_WIDTH - 1, y + BAR_HEIGHT - 1 ], fill=1)
+
+        draw.rectangle([PADDING + 80 + 1, y + 1, PADDING + 80 + bar_len - 1, y + BAR_HEIGHT - 1], fill=2)
+        draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram} MB", font=SMALL, fill=0)
+        y += 22
 
     inky.set_image(img)
     inky.show()
