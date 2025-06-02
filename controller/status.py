@@ -65,7 +65,7 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=1)
 
     w, h = text_size(draw, label, FONT)
-    draw.text((x - lw // 2, y + radius + 5), label, font=TITLE, fill=0)
+    draw.text((x - w // 2, y + radius + 5), label, font=TITLE, fill=0)
 
 def render_display(stats):
     inky = auto()
