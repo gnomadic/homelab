@@ -89,7 +89,7 @@ def draw_reboot_label(draw, x, y, font):
 
     # Measure text
     w, h = text_size(draw, label, font)
-    draw.text((x - w - 12, y - h - arrow_padding), label, font=font, fill=0)
+    draw.text((x - w - 12, y - h - 4), label, font=font, fill=0)
 
     # Draw arrow (simple right-pointing chevron)
     arrow_tip = (x, y - 5)
@@ -104,7 +104,7 @@ def draw_update_label(draw, x, y, font):
 
     # Measure text
     w, h = text_size(draw, label, font)
-    draw.text((x + 12, y - h - arrow_padding), label, font=font, fill=0)
+    draw.text((x + 12, y - h - 3), label, font=font, fill=0)
 
     # Draw arrow (left-pointing chevron)
     arrow_tip = (x, y - 5)
