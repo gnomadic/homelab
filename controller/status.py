@@ -63,7 +63,7 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
 
     offset = radius * 0.7
     smallerbbox = [x - offset, y - offset, x + offset, y + offset]
-    draw.pieslice(smallerbbox, start=-90, end=-90 + int(360 * pct), fill=1)
+    draw.pieslice(smallerbbox, start=-90, end=-90, fill=1)
 
 
     val_text = f"{int(value)}{suffix}"
@@ -109,9 +109,11 @@ def render_display(stats):
         bar_len = int(min(ram / 4000, 1.0) * BAR_WIDTH)
 
         draw.text((PADDING, y), name, font=SMALL, fill=0)
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + BAR_WIDTH - 4, y + BAR_HEIGHT - 4 ], fill=0)
+        
+        draw.rectangle([PADDING + 80, y, PADDING + 80 + BAR_WIDTH, y + BAR_HEIGHT ], fill=0)
+        draw.rectangle([PADDING + 80 + 4, y + 4, PADDING + 80 + BAR_WIDTH - 4, y + BAR_HEIGHT - 4 ], fill=1)
 
-        draw.rectangle([PADDING + 80, y + 4, PADDING + 80 + bar_len, y + BAR_HEIGHT], fill=2)
+        draw.rectangle([PADDING + 80 + 4, y + 4, PADDING + 80 + bar_len - 4, y + BAR_HEIGHT - 4], fill=2)
         draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram} MB", font=SMALL, fill=0)
         y += 22
 
