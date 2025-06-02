@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import threading
+import subprocess
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(37, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 1
@@ -24,6 +25,7 @@ try:
             button1_locked = True
             print("Button 1 pressed")
             # Add your Button 1 action here
+            subprocess.run(["/home/edward/homelab/scripts/refresh.sh"])
             threading.Timer(5.0, unlock_button1).start()
 
         if GPIO.input(36) == GPIO.HIGH and not button2_locked:
