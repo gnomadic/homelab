@@ -9,7 +9,6 @@ WIDTH, HEIGHT = 400, 300
 PADDING = 10
 BAR_WIDTH = 220
 BAR_HEIGHT = 14
-BAR_COLOR = 0  # black
 
 # === Font Setup ===
 FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
@@ -153,7 +152,7 @@ def render_display(stats):
     # Top containers
     y = 170
     draw.text((PADDING, y), "TOP CONTAINERS (RAM MB)", font=SMALL, fill=0)
-    y += 20
+    y += 28
 
     for container in stats["top_containers"]:
         name = container["name"][:10].ljust(10)
