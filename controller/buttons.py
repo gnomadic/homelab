@@ -25,7 +25,9 @@ try:
             button1_locked = True
             print("Button 1 pressed")
             # Add your Button 1 action here
-            subprocess.run(["scripts/refresh.sh"])
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            script_path = os.path.join(BASE_DIR, "scripts/redraw.sh")
+            subprocess.run([script_path])
             threading.Timer(5.0, unlock_button1).start()
 
         if GPIO.input(36) == GPIO.HIGH and not button2_locked:
