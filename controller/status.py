@@ -58,7 +58,7 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
     draw.arc(bbox, start=0, end=359, fill=0)
-    draw.pieslice(bbox, start=-90, end=-90 , fill=1)
+    draw.pieslice(bbox, start=-90, end=359 , fill=1)
     draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=2)
 
     offset = radius * 0.7
@@ -111,9 +111,9 @@ def render_display(stats):
         draw.text((PADDING, y), name, font=SMALL, fill=0)
         
         draw.rectangle([PADDING + 80, y, PADDING + 80 + BAR_WIDTH, y + BAR_HEIGHT ], fill=0)
-        draw.rectangle([PADDING + 80 + 4, y + 4, PADDING + 80 + BAR_WIDTH - 4, y + BAR_HEIGHT - 4 ], fill=1)
+        draw.rectangle([PADDING + 80 + 1, y + 1, PADDING + 80 + BAR_WIDTH - 1, y + BAR_HEIGHT - 1 ], fill=1)
 
-        draw.rectangle([PADDING + 80 + 4, y + 4, PADDING + 80 + bar_len - 4, y + BAR_HEIGHT - 4], fill=2)
+        draw.rectangle([PADDING + 80 + 1, y + 1, PADDING + 80 + bar_len - 1, y + BAR_HEIGHT - 1], fill=2)
         draw.text((PADDING + 80 + BAR_WIDTH + 5, y), f"{ram} MB", font=SMALL, fill=0)
         y += 22
 
