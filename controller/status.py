@@ -58,7 +58,8 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
     draw.arc(bbox, start=0, end=359, fill=0)
-    # draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=0)
+    draw.circle((x, y), radius, fill=1)
+    draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=2)
 
     val_text = f"{int(value)}{suffix}"
     w, h = text_size(draw, val_text, FONT)
@@ -75,7 +76,7 @@ def render_display(stats):
     # Title in top left
     title = "HOMEBASE"
     w, h = text_size(draw, title, FONT)
-    draw.text((PADDING, PADDING + w), title, font=SMALL, fill=0)
+    draw.text((PADDING, PADDING), title, font=SMALL, fill=0)
 
 
     # Uptime in top right
