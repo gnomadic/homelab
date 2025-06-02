@@ -99,7 +99,7 @@ def draw_reboot_label(draw, x, y, font):
     draw.line([arrow_bottom, arrow_tip, arrow_top], fill=0, width=2)
 
 def draw_update_label(draw, x, y, font):
-    label = "Update"
+    label = "Refresh"
     # spacing = 6  # space between arrow and text
 
     # Measure text
