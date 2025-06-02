@@ -13,9 +13,11 @@ BAR_COLOR = 0  # black
 
 # === Font Setup ===
 FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf"
+BOLD_FONT_PATH = "/usr/share/fonts/opentype/cantarell/Cantarell-Bold.otf"
 
 FONT = ImageFont.truetype(FONT_PATH, 16)
 SMALL = ImageFont.truetype(FONT_PATH, 14)
+TITLE = ImageFont.truetype(BOLD_FONT_PATH, 20)
 
 def fetch_data():
     try:
@@ -46,6 +48,12 @@ def fetch_data():
         "top_containers": top_containers
     }
 
+def text_size(draw, text, font):
+    bbox = draw.textbbox((0, 0), text, font=font)
+    width = bbox[2] - bbox[0]
+    height = bbox[3] - bbox[1]
+    return width, height
+
 def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     pct = min(max(value / max_value, 0.0), 1.0)
     bbox = [x - radius, y - radius, x + radius, y + radius]
@@ -53,11 +61,11 @@ def draw_circle(draw, x, y, label, value, max_value=100, radius=35, suffix="%"):
     draw.pieslice(bbox, start=-90, end=-90 + int(360 * pct), fill=0)
 
     val_text = f"{int(value)}{suffix}"
-    w, h = draw.textsize(val_text, font=SMALL)
+    w, h = text_size(draw, text, FONT)
     draw.text((x - w // 2, y - h // 2), val_text, font=SMALL, fill=1)
 
-    lw, lh = draw.textsize(label, font=SMALL)
-    draw.text((x - lw // 2, y + radius + 5), label, font=SMALL, fill=0)
+    w, h = text_size(draw, text, FONT)
+    draw.text((x - lw // 2, y + radius + 5), label, font=TITLE, fill=0)
 
 def render_display(stats):
     inky = auto()
@@ -66,7 +74,7 @@ def render_display(stats):
 
     # Uptime in top right
     uptime = stats["uptime"]
-    w, h = draw.textsize(uptime, font=SMALL)
+    w, h = text_size(draw, text, FONT)
     draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
     # Circle positions
