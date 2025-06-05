@@ -112,6 +112,18 @@ def draw_update_label(draw, x, y, font):
 
     draw.line([arrow_bottom, arrow_tip, arrow_top], fill=0, width=2)
 
+def draw_button_label(draw, x, y, label, font):
+    # Measure text
+    w, h = text_size(draw, label, font)
+    draw.text((x - w // 2, y - h // 2), label, font=font, fill=0)
+
+    # Draw downward arrow in the center
+    arrow_tip = (x, y + h // 2 + 5)
+    arrow_bottom = (x - 5, y + h // 2 + 10)
+    arrow_top = (x + 5, y + h // 2 + 10)
+    draw.line([arrow_bottom, arrow_tip, arrow_top], fill=0, width=2)
+    
+
 def render_display(stats):
     inky = auto()
     img = Image.new("P", (WIDTH, HEIGHT), 1)
@@ -132,13 +144,24 @@ def render_display(stats):
     # w, h = text_size(draw, uptime, FONT)
     # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
-    draw_reboot_label(draw, WIDTH - PADDING, HEIGHT - PADDING, SMALL)
+    xOffset = WIDTH  + PADDING
+    yOffset = HEIGHT - PADDING
+
+    draw_button_label(draw, xOffset , yOffset, "Reboot", SMALL)
+    xOffset = xOffset + (WIDTH / 4)
+    draw_button_label(draw, xOffset , yOffset, "Redraw", SMALL)
+    xOffset = xOffset + (WIDTH / 4)
+    draw_button_label(draw, xOffset , yOffset, "Nothing", SMALL)
+    xOffset = xOffset + (WIDTH / 4)
+    draw_button_label(draw, xOffset , yOffset, "Nothing", SMALL)
+
+    # draw_reboot_label(draw, WIDTH - PADDING, HEIGHT - PADDING, SMALL)
 
     # # Refresh in bottom left
     # uptime = stats["Refresh"]
     # w, h = text_size(draw, uptime, FONT)
     # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
-    draw_update_label(draw, PADDING, HEIGHT - PADDING, SMALL)
+    # draw_update_label(draw, PADDING, HEIGHT - PADDING, SMALL)
 
     # Circle positions
     circle_y = 90
