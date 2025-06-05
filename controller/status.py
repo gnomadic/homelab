@@ -144,7 +144,7 @@ def render_display(stats):
     # w, h = text_size(draw, uptime, FONT)
     # draw.text((WIDTH - PADDING - w, PADDING), uptime, font=SMALL, fill=0)
 
-    xOffset = WIDTH  + PADDING
+    xOffset = 0  + PADDING
     yOffset = HEIGHT - PADDING
 
     draw_button_label(draw, xOffset , yOffset, "Reboot", SMALL)
