@@ -114,9 +114,10 @@ def draw_update_label(draw, x, y, font):
 
 def draw_button_label(draw, x, y, label, font):
     # Measure text
-    w, h = text_size(draw, label, font)
-    # w = 50
-    draw.text((x + w // 2, y - h), str(h), font=font, fill=0)
+    # w, h = text_size(draw, label, font)
+    w = 60
+    h = 20
+    draw.text((x + w // 2, y - h - 10), label, font=font, fill=0)
 
     # Draw downward arrow in the center
     arrow_tip = (x, y + h // 2 + 5)
