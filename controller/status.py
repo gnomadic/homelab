@@ -166,7 +166,7 @@ def render_display(stats):
     # draw_update_label(draw, PADDING, HEIGHT - PADDING, SMALL)
 
     # Circle positions
-    circle_y = 90
+    circle_y = 80
     draw_circle(draw, 90, circle_y, "CPU", stats["cpu_percent"])
     draw_circle(draw, 200, circle_y, "RAM", stats["mem_percent"])
     draw_circle(draw, 310, circle_y, "DISK", stats["disk_percent"])
