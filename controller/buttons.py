@@ -5,8 +5,10 @@ import subprocess
 import os
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(37, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 1
-GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 2
+GPIO.setup(37, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 1 Orange
+GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 2 Red
+GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 3 Green
+GPIO.setup(31, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 4 Blue
 
 # Button state locks
 button1_locked = False
