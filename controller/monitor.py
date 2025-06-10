@@ -6,7 +6,7 @@ import sys
 # IMPORTANT: Set the correct GPIO pin for your Inky display's BUSY signal.
 # For Inky pHAT, it's typically 24
 # For Inky wHAT, it's typically 17
-BUSY_PIN = 24 # <--- CHANGE THIS TO YOUR INKY'S BUSY PIN
+BUSY_PIN = 17 # <--- CHANGE THIS TO YOUR INKY'S BUSY PIN
 
 # --- Script ---
 def monitor_busy_pin(pin):
