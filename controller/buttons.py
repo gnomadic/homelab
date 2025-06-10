@@ -5,8 +5,8 @@ import subprocess
 import os
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(37, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Button 1
-GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Button 2
+GPIO.setup(37, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 1
+GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Button 2
 
 # Button state locks
 button1_locked = False
@@ -22,7 +22,7 @@ def unlock_button2():
 
 try:
     while True:
-        if GPIO.input(37) == GPIO.LOW and not button1_locked:
+        if GPIO.input(37) == GPIO.HIGH and not button1_locked:
             button1_locked = True
             print("Button 1 pressed")
             # Add your Button 1 action here
@@ -31,7 +31,7 @@ try:
             subprocess.run([script_path])
             threading.Timer(5.0, unlock_button1).start()
 
-        if GPIO.input(36) == GPIO.LOW and not button2_locked:
+        if GPIO.input(36) == GPIO.HIGH and not button2_locked:
             button2_locked = True
             print("Button 2 pressed")
             # Add your Button 2 action here

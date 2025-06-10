@@ -28,9 +28,9 @@ try:
             input1 = GPIO.input(37)
             print("Button 2 pressed: " + str(input1))
             # Add your Button 1 action here
-            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            script_path = os.path.join(BASE_DIR, "scripts/redraw.sh")
-            subprocess.run([script_path])
+            # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            # script_path = os.path.join(BASE_DIR, "scripts/redraw.sh")
+            # subprocess.run([script_path])
             threading.Timer(1.0, unlock_button1).start()
 
         if not button2_locked:
