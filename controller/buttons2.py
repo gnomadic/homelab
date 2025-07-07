@@ -16,6 +16,7 @@ BUTTON3_PIN = 31
 
 GPIO.setup(BUTTON1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(BUTTON2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUTTON3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Lock state to prevent bouncing/repeat
 button1_locked = False
