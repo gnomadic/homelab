@@ -14,9 +14,9 @@ BUTTON2_PIN = 36
 BUTTON3_PIN = 31
 # BUTTON3_PIN
 
-GPIO.setup(BUTTON1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(BUTTON2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(BUTTON3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUTTON1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(BUTTON2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(BUTTON3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Lock state to prevent bouncing/repeat
 button1_locked = False
@@ -65,7 +65,7 @@ def button3_callback(channel):
 # Register callbacks
 GPIO.add_event_detect(BUTTON1_PIN, GPIO.FALLING, callback=button1_callback, bouncetime=200)
 GPIO.add_event_detect(BUTTON2_PIN, GPIO.FALLING, callback=button2_callback, bouncetime=200)
-GPIO.add_event_detect(BUTTON3_PIN, GPIO.FALLING, callback=button2_callback, bouncetime=200)
+GPIO.add_event_detect(BUTTON3_PIN, GPIO.FALLING, callback=button3_callback, bouncetime=200)
 
 try:
     print("Listening for button presses...")
